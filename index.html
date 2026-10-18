@@ -734,6 +734,11 @@ class Game {
     ctx.fillStyle = '#222';
     ctx.fill();
 
+    // 手槍：握在身體側邊，槍口朝面向方向
+    const sdx = f.facing.x - f.facing.y, sdy = (f.facing.x + f.facing.y) / 2;
+    const sl = Math.hypot(sdx, sdy) || 1;
+    this.drawPistol(f, g.x + sdx / sl * 7, bodyTop + 13 + sdy / sl * 7);
+
     // 頭上的冷卻圓環：攻擊（內）、能量球（中）、衝刺（外）
     const rings = [
       { key: 'atk', r: 15, max: CONFIG.ATK_CD, color: '#ffd166' },
@@ -752,6 +757,38 @@ class Game {
       ctx.strokeStyle = rg.color;
       ctx.stroke();
     }
+    ctx.restore();
+  }
+
+  // 手槍（側視）：套筒、槍口、握把、扳機護圈與握持的手
+  // (hx, hy) 為槍的握點（螢幕座標），槍口朝螢幕上的面向方向
+  drawPistol(f, hx, hy) {
+    const ctx = this.ctx;
+    const sx = f.facing.x - f.facing.y, sy = (f.facing.x + f.facing.y) / 2;
+    const len = Math.hypot(sx, sy) || 1;
+    const ang = Math.atan2(sy / len, sx / len);
+
+    ctx.save();
+    ctx.translate(hx, hy);
+    // 槍口朝左時，先上下翻轉再旋轉，避免槍身倒立
+    if (Math.abs(ang) > Math.PI / 2) ctx.scale(1, -1);
+    ctx.rotate(ang);
+
+    ctx.fillStyle = '#3a3f47';          // 套筒
+    ctx.fillRect(0, -3, 14, 4);
+    ctx.fillStyle = '#8a919c';          // 套筒高光
+    ctx.fillRect(1, -3, 12, 1);
+    ctx.fillStyle = '#1e2126';          // 槍口
+    ctx.fillRect(13, -2, 2, 2);
+    ctx.fillStyle = '#6b4226';          // 握把（往下）
+    ctx.fillRect(2, 1, 4, 7);
+    ctx.strokeStyle = '#3a3f47';        // 扳機護圈
+    ctx.lineWidth = 1;
+    ctx.strokeRect(6.5, 1, 3, 3);
+    ctx.beginPath();                    // 握持的手
+    ctx.arc(4, 5, 2, 0, TAU);
+    ctx.fillStyle = '#ffe0bd';
+    ctx.fill();
     ctx.restore();
   }
 
