@@ -92,7 +92,8 @@ const OBSTACLES = [
 
 // 按鍵對應（event.code）
 const CONTROLS = {
-  P1: { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', atk: 'KeyJ', skill: 'KeyK', dash: 'KeyL' },
+  // P1：左鍵開槍（能量球）、右鍵近戰（普攻）、Q 衝刺
+  P1: { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', atk: 'Mouse2', skill: 'Mouse0', dash: 'KeyQ' },
   P2: {
     up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight',
     atk: ['Numpad1', 'Comma'], skill: ['Numpad2', 'Period'], dash: ['Numpad3', 'Slash'],
@@ -173,6 +174,14 @@ const Input = {
       this.down.add(e.code);
     });
     window.addEventListener('keyup', e => this.down.delete(e.code));
+    // 滑鼠按鍵當作 'Mouse0'（左）、'Mouse2'（右）
+    window.addEventListener('mousedown', e => {
+      const c = 'Mouse' + e.button;
+      if (!this.down.has(c)) this.pressed.add(c);
+      this.down.add(c);
+    });
+    window.addEventListener('mouseup', e => this.down.delete('Mouse' + e.button));
+    window.addEventListener('contextmenu', e => e.preventDefault());  // 右鍵不要跳出選單
     window.addEventListener('blur', () => this.down.clear());
   },
   isDown(code) { return this.down.has(code); },
@@ -937,7 +946,7 @@ class Game {
     ctx.fillStyle = '#cfd8e3';
     ctx.font = `16px ${FONT}`;
     const help = [
-      'P1：WASD 移動　J 攻擊　K 能量球　L 衝刺',
+      'P1：WASD 移動　左鍵 開槍　右鍵 近戰　Q 衝刺',
       'P2：方向鍵移動　Numpad1 攻擊　Numpad2 能量球　Numpad3 衝刺（無數字鍵盤可改用 , . /）',
       '↑↓ 切換選項　←→ 更改設定　Enter 開始　P / Esc 暫停',
       '三戰兩勝，每回合 60 秒，時間到時血量較多者獲勝',
